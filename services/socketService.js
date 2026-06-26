@@ -156,7 +156,7 @@ const initializeSocket = (server) => {
                 )
 
                 if (exitingIndex > -1) {
-                    const exiting = message.reactions(exitingIndex);
+                    const exiting = message.reactions[exitingIndex];
                     if (exiting.emoji === emoji) {
                         // remove same raection
                         message.reactions.splice(exitingIndex, 1);
@@ -181,8 +181,8 @@ const initializeSocket = (server) => {
                     reactions: populateMessage.reactions
                 }
 
-                const senderSocket = onlineUsers.get(populateMessage.sender._id.toString());
-                const receiverSocket = onlineUsers.get(populateMessage.receiver?._id.toString());
+                const senderSocket = onlineUser.get(populateMessage.sender._id.toString());
+                const receiverSocket = onlineUser.get(populateMessage.receiver?._id.toString());
 
                 if (senderSocket) io.to(senderSocket).emit("reaction_update", reactionUpdated);
                 if (receiverSocket) io.to(receiverSocket).emit("reaction_update", reactionUpdated);
@@ -196,7 +196,7 @@ const initializeSocket = (server) => {
         const handleDisconnected = async () => {
             if (!userId) return;
             try {
-                onlineUsers.delete(userId);
+                onlineUser.delete(userId);
 
                 //clear all typing timeouts
                 if (typingUsers.has(userId)) {
