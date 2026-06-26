@@ -56,21 +56,13 @@
 
 
 const nodemailer = require("nodemailer");
-const dotenv = require("dotenv");
-
-dotenv.config();
-
-// Check if environment variables are loaded
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log(
-  "EMAIL_PASS:",
-  process.env.EMAIL_PASS ? "PASS FOUND" : "PASS MISSING"
-);
+const dns = require("dns");
+require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // Use STARTTLS
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -78,17 +70,16 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false,
   },
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
+  family: 4, // Force IPv4
 });
 
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP VERIFY ERROR:");
-    console.error(error);
+dns.setDefaultResultOrder("ipv4first");
+
+transporter.verify((err) => {
+  if (err) {
+    console.error(err);
   } else {
-    console.log("✅ Gmail configured properly and ready to send email");
+    console.log("SMTP Connected");
   }
 });
 
