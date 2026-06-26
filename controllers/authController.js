@@ -15,12 +15,12 @@ const sendOtp = async (req, res) => {
     const expiry = new Date(Date.now() + 5 * 60 * 1000);
     let user;
     try {
-        if(email){
-            user = await User.findOne({email});
+        if (email) {
+            user = await User.findOne({ email });
 
             // Create new User
-            if(!user){
-                user = new User({email})
+            if (!user) {
+                user = new User({ email })
             }
 
             //User Already exists!
@@ -28,7 +28,7 @@ const sendOtp = async (req, res) => {
             user.emailOtpExpiry = expiry;
             await user.save();
             await sendOtpToEmail(email, otp);
-            return response(res, 200, 'Otp send to your email', {email});
+            return response(res, 200, 'Otp send to your email', { email });
         }
 
         if (!phoneNumber || !phoneSuffix) {
@@ -93,9 +93,16 @@ const verifyOtp = async (req, res) => {
 
         const token = generateToken(user?._id); // this is authentaction
 
+        // res.cookie("auth_token", token, {
+        //     httpOnly: true,
+        //     maxAge: 1000 * 60 * 60 * 24 * 365
+        // });
+
         res.cookie("auth_token", token, {
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 365
+            secure: true,
+            sameSite: "None",
+            maxAge: 1000 * 60 * 60 * 24 * 365,
         });
 
         return response(res, 200, 'Otp verified successfully', { token, user })
